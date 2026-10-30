@@ -1,0 +1,11 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/workflow_local}
+    username: ${SPRING_DATASOURCE_USERNAME:workflow_dev}
+    password: ${SPRING_DATASOURCE_PASSWORD:change_me_local_only}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false

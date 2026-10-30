@@ -1,0 +1,1 @@
+export default function App(){return <main className="container"><h1>Enterprise Workflow Management</h1><p>Scaffold only — project/task CRUD is not implemented yet.</p><section className="card"><h2>Projects</h2><p>Upcoming: create and manage projects.</p></section><section className="card"><h2>Tasks</h2><p>Upcoming: create and update tasks.</p></section></main>}

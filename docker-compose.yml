@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "127.0.0.1:5433:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-workflow_local}
+      POSTGRES_USER: ${POSTGRES_USER:-workflow_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+    volumes:
+      - workflow_pg_data:/var/lib/postgresql/data
+volumes:
+  workflow_pg_data:
