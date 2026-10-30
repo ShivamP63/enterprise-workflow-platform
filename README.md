@@ -1,16 +1,17 @@
 # Enterprise Workflow Management Platform
 
-**Status: Initial scaffold — CRUD is not implemented yet.**
+**Status:** Sprint 1 backend code added. **Not yet a verified, complete CRUD application.**
 
-React + TypeScript frontend; Java 21/Spring Boot REST API; PostgreSQL (Docker Compose). This repository is currently a development skeleton with a static UI and a health endpoint. Do not deploy publicly before authentication and authorization are implemented.
+**Stack:** Java 21, Spring Boot 3, PostgreSQL, Flyway, React, TypeScript, Docker Compose.
 
-## Local setup
+## Local development
 
-1. Install Java 21, Maven, Node.js, and Docker Desktop.
-2. Start PostgreSQL: `docker compose up -d postgres`.
-3. Start API: `cd backend && mvn spring-boot:run` (health: `http://localhost:8080/api/health`).
-4. Start UI in another terminal: `cd frontend && npm install && npm run dev`.
+1. Install Java 21, Maven, Node.js and Docker Desktop.
+2. In repository root run `docker compose up -d postgres` (PostgreSQL only on localhost:5433).
+3. Run `cd backend && mvn test && mvn spring-boot:run`. Flyway creates tables on API startup.
+4. Verify `http://localhost:8080/api/health` and create a project with `POST /api/projects`.
+5. In a separate terminal run `cd frontend && npm install && npm run dev` to see the **placeholder** frontend; React CRUD integration is next.
 
-The database credentials are **local demonstration defaults**, not suitable for public hosting. Configure local overrides using environment variables. Application features and end-to-end testing remain outstanding.
+Database account/password are **local-only defaults**. Do not expose the app on a public network: there is no authentication or project-level authorization yet.
 
-See [roadmap](docs/roadmap.md), [architecture](docs/architecture.md), and [API plan](docs/api-design.md).
+See [API design](docs/api-design.md), [roadmap](docs/roadmap.md) and [architecture](docs/architecture.md).

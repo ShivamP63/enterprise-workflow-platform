@@ -1,2 +1,3 @@
 # Development progress
-Status: repository scaffold. No CRUD implemented. Builds and database integration not verified.
+
+2026-10-29 — Sprint 1 backend implementation committed: project/task entities, Flyway migration, Spring Data repositories, services, REST endpoints, DTO validation, local CORS and a unit test. Not yet verified by a running PostgreSQL instance or a complete browser workflow. Authentication/authorization deferred; keep local only.
