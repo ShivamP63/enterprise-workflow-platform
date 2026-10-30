@@ -1,8 +1,9 @@
 # Roadmap
-- [ ] M1 — working PostgreSQL + project/task CRUD + React integration + passing tests
+- [ ] M1 — working PostgreSQL + project/task CRUD + passing tests
   - [x] Write initial schema migration and backend CRUD endpoints
+  - [x] Implement React create/list/edit project and task interactions
   - [ ] Execute PostgreSQL migrations and verify APIs
-  - [ ] Connect React project/task pages and demonstrate persistence
+  - [ ] Verify data persistence across browser reload end-to-end
 - [ ] M2 — Login, project membership and authorization
 - [ ] M3 — Comments, assignments, activity and filtering
 - [ ] M4 — CI, integration tests, reliability
