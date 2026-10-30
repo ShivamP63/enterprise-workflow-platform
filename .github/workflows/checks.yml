@@ -16,6 +16,67 @@ jobs:
           cache-dependency-path: backend/pom.xml
       - run: mvn --batch-mode --no-transfer-progress test
         working-directory: backend
+  postgres-smoke:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: workflow_local
+          POSTGRES_USER: workflow_dev
+          POSTGRES_PASSWORD: change_me_local_only
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U workflow_dev -d workflow_local"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Boot API and exercise PostgreSQL CRUD
+        working-directory: backend
+        run: |
+          mvn --batch-mode --no-transfer-progress spring-boot:run >/tmp/workflow-api.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 75); do
+            if curl -fsS http://localhost:8080/api/health >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/workflow-api.log
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json
+          from urllib.request import Request, urlopen
+          def call(method, path, payload=None):
+              data = None if payload is None else json.dumps(payload).encode()
+              request = Request('http://localhost:8080'+path, data=data, method=method,
+                                headers={'Content-Type': 'application/json'})
+              with urlopen(request, timeout=15) as response:
+                  return json.load(response)
+          project = call('POST', '/api/projects', {'name': 'CI Smoke'})
+          assert project['id']
+          task = call('POST', f"/api/projects/{project['id']}/tasks", {'title': 'Verify database'})
+          assert task['status'] == 'TODO'
+          updated = call('PATCH', f"/api/tasks/{task['id']}", {'status': 'DONE'})
+          assert updated['status'] == 'DONE'
+          listed = call('GET', f"/api/projects/{project['id']}/tasks")
+          assert listed[0]['status'] == 'DONE'
+          print('PostgreSQL CRUD smoke passed')
+          PY
   frontend-build:
     runs-on: ubuntu-latest
     steps:
