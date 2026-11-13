@@ -6,3 +6,4 @@
 2026-11-13 — v0.1.0 local-first milestone ready; no public backend deployment, authentication or per-project access control yet.
 
 Next: login and backend-enforced role authorization before exposing to the internet.
+2026-11-13 — Public browser-only sample demo deployed to Vercel: https://enterprise-workflow-demo.vercel.app . Demo stores projects/tasks locally in the visitor's browser; Spring Boot/PostgreSQL remain local + CI-tested, not cloud-hosted. GitHub Login Connection on Vercel not set; live frontend was deployed manually from GitHub source (no automatic redeploy).
