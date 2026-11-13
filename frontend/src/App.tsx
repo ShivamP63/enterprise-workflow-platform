@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { API_BASE_URL } from "./api/client";
+import { isHostedDemo, demoRequest } from "./api/demo";
 
 type ProjectStatus = "ACTIVE" | "ARCHIVED";
 type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
@@ -8,6 +9,7 @@ type Project = { id: string; name: string; description: string | null; status: P
 type Task = { id: string; title: string; details: string | null; status: TaskStatus; priority: TaskPriority; projectId: string };
 
 async function api<T>(path: string, options?: RequestInit): Promise<T> {
+  if (isHostedDemo) return demoRequest<T>(path, options);
   const res = await fetch(API_BASE_URL + path, { headers: { "Content-Type": "application/json" }, ...options });
   if (!res.ok) {
     const body = await res.text();
@@ -86,6 +88,7 @@ export default function App() {
 
   return <main className="container">
     <header><p className="eyebrow">PORTFOLIO · SPRINT 1</p><h1>Enterprise Workflow</h1><p>Manage projects and track tasks with a Spring Boot API and PostgreSQL.</p></header>
+    {isHostedDemo && <div className="notice"><strong>Interactive browser-only demo.</strong> All changes stay in your browser. The real Java/Spring Boot + PostgreSQL application is implemented and tested in the linked GitHub repository.</div>}
     {message && <div role="status" className="notice">{message}</div>}
     <div className="columns">
       <section className="card"><h2>Projects</h2>
@@ -108,6 +111,6 @@ export default function App() {
         </> : <p className="muted">Create or select a project first.</p>}
       </section>
     </div>
-    <footer>Local development demo only · Authentication and roles are planned for Sprint 2.</footer>
+    <footer>{isHostedDemo ? "Public preview: local browser data only · No server or shared accounts" : "Local development demo only · Authentication and roles are planned for Sprint 2."}</footer>
   </main>;
 }
