@@ -1,6 +1,8 @@
 # Development progress
 
-2026-10-29 — Sprint 1 backend source committed: Flyway PostgreSQL schema, projects/tasks Java entities, services and REST CRUD routes, validation and unit test.
-2026-10-29 — React TypeScript CRUD screen connected in source to local backend API: create/rename project, add task, change status, list persisted items.
+2026-10-29 — Implemented Spring Boot project/task CRUD, PostgreSQL/Flyway schema, and React/TypeScript API UI.
+2026-11-13 — Added complete local Docker Compose stack (PostgreSQL + Spring Boot + React/Nginx), loopback-only ports, and Playwright browser persistence test.
+2026-11-13 — **M1 verified in GitHub Actions:** Java tests, PostgreSQL CRUD smoke, frontend build, and full Docker browser test all passed. [Passing CI run](https://github.com/ShivamP63/enterprise-workflow-platform/actions/runs/43396671688).
+2026-11-13 — v0.1.0 local-first milestone ready; no public backend deployment, authentication or per-project access control yet.
 
-**Verification still pending:** Java + frontend builds, PostgreSQL startup/migration, end-to-end manual demo. No auth; local-only.
+Next: login and backend-enforced role authorization before exposing to the internet.

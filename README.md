@@ -1,6 +1,6 @@
 # Enterprise Workflow Management Platform
 
-**In development — Sprint 1 source implemented; local end-to-end PostgreSQL verification pending.**
+**v0.1.0 local-first milestone verified in CI — automated browser-to-PostgreSQL test passed on 2026-11-13.**
 
 A full-stack business workflow application for managing team projects and tasks. Built to explore practical backend architecture, relational data modeling, React user interfaces, and reliable API-driven workflows.
 
@@ -8,11 +8,11 @@ A full-stack business workflow application for managing team projects and tasks.
 
 ## Project overview
 
-The first workflow is designed around creating a project, adding and updating tasks, and viewing persisted changes in a React application. The repository contains the Sprint 1 application foundation, but the complete browser-to-PostgreSQL flow has **not yet been verified end to end**.
+The first workflow is designed around creating a project, adding and updating tasks, and viewing persisted changes in a React application. The repository contains the Sprint 1 application foundation, and the browser-to-PostgreSQL flow has been verified by an automated Docker + Playwright test in GitHub Actions.
 
 ### Planned development milestones
 
-1. **Sprint 1 — Foundation:** Project/task APIs, PostgreSQL schema and migrations, React UI, initial tests; **source implemented, end-to-end verification pending**.
+1. **Sprint 1 — Foundation:** Project/task APIs, PostgreSQL schema and migrations, React UI, initial tests; **implemented and verified by automated browser test in CI**.
 2. **Authentication & authorization:** User login, project membership, role-based access, authorization tests.
 3. **Collaboration:** Task assignments, comments, filters, and activity history.
 4. **Quality & deployment:** More integration tests, CI, containerization, observability, and a controlled cloud release.
@@ -38,6 +38,6 @@ GitHub Actions includes a Playwright browser test that exercises this exact work
 3. Run `cd backend && mvn test && mvn spring-boot:run`. Flyway creates tables on startup.
 4. Verify `http://localhost:8080/api/health`.
 5. In a second terminal run `cd frontend && npm install && npm run dev`. Open `http://localhost:5173`.
-6. Create a project, add a task, change its status, refresh the page, and confirm the records persist. **This end-to-end check is still pending.**
+6. Create a project, add a task, change its status, refresh the page, and confirm the records persist. **This exact workflow passed the automated browser test in CI; manual walkthrough is optional.**
 
 **Local development only:** Docker Compose database credentials are development defaults. Do not expose the application publicly before authentication and per-project authorization are implemented.
