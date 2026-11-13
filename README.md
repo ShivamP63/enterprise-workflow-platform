@@ -1,5 +1,13 @@
 # Enterprise Workflow Management Platform
 
+## Live browser-only preview
+
+**[Enterprise Workflow public demo](https://enterprise-workflow-demo.vercel.app)** — hosted on Vercel (deployed 2026-11-13).
+
+The public demo saves project/task changes in each visitor's own browser using localStorage; it does not call the Java API or PostgreSQL. The full-stack Docker Compose application is separately tested through GitHub Actions.
+
+**Important:** GitHub is the source of truth, but this Vercel project was deployed from the checked-in frontend source directly because the Vercel team's GitHub Login Connection has not been enabled. New GitHub commits do **not** automatically update the live Vercel site until that connection is configured or another explicit deployment is made.
+
 **v0.1.0 local-first milestone verified in CI — automated browser-to-PostgreSQL test passed on 2026-11-13.**
 
 A full-stack business workflow application for managing team projects and tasks. Built to explore practical backend architecture, relational data modeling, React user interfaces, and reliable API-driven workflows.
