@@ -41,3 +41,9 @@ GitHub Actions includes a Playwright browser test that exercises this exact work
 6. Create a project, add a task, change its status, refresh the page, and confirm the records persist. **This exact workflow passed the automated browser test in CI; manual walkthrough is optional.**
 
 **Local development only:** Docker Compose database credentials are development defaults. Do not expose the application publicly before authentication and per-project authorization are implemented.
+
+## Hosted browser-only portfolio preview
+
+The Vercel frontend is intentionally an isolated, interactive **browser-only demo**: it saves sample project/task data in browser localStorage and does not contact the Spring Boot API. This protects the unauthenticated backend from public access and makes the preview free of hosted database dependencies. It is **not** a demonstration of a deployed Java/PostgreSQL backend.
+
+The full Java 21/Spring Boot, PostgreSQL, Flyway, React application runs through Docker Compose and has passed project/task browser-to-database persistence checks in GitHub Actions. The public demo uses `VITE_DEMO_MODE=true`; localhost continues to use the real API by default.
