@@ -20,7 +20,15 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [selected, setSelected] = useState<string>("");
+  const [selected, setSelected] = useState<string>(() => {
+    try { return isHostedDemo ? localStorage.getItem("portfolio-workflow-selected-project") ?? "" : ""; }
+    catch { return ""; }
+  });
+  useEffect(() => {
+    if (isHostedDemo && selected) {
+      try { localStorage.setItem("portfolio-workflow-selected-project", selected); } catch { /* optional preference */ }
+    }
+  }, [selected]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projectName, setProjectName] = useState("");
   const [taskTitle, setTaskTitle] = useState("");

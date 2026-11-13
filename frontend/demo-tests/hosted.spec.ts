@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('hosted workflow preview is interactive, persistent, and never contacts an API', async ({ page }) => {
   const apiRequests: string[] = [];
-  page.on('request', r => { if (r.url().includes('/api/')) apiRequests.push(r.url()); });
+  page.on('request', r => { if (new URL(r.url()).pathname.startsWith('/api/')) apiRequests.push(r.url()); });
   const suffix = Date.now().toString();
   const project = 'Hosted example ' + suffix;
   const task = 'Sample task ' + suffix;
