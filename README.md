@@ -19,7 +19,19 @@ The first workflow is designed around creating a project, adding and updating ta
 
 The roadmap describes **planned features**, not released functionality. See [roadmap](docs/roadmap.md), [architecture](docs/architecture.md), and [API design](docs/api-design.md).
 
-## Local development
+## One-command Docker demo (local)
+
+With Docker Desktop running, execute this at the repository root:
+
+```bash
+docker compose up -d --build
+```
+
+Open **http://localhost:5173** (React UI) and **http://localhost:8080/api/health** (Spring Boot health endpoint). Create a project, add a task, update its status, and refresh to confirm PostgreSQL persistence. Stop the app using `docker compose down`; database data persists in a named Docker volume unless explicitly removed.
+
+GitHub Actions includes a Playwright browser test that exercises this exact workflow through the Dockerized UI, API, and PostgreSQL. The application remains **local-only** until user authentication and server-side authorization are implemented. Do not expose ports or publish this demo as a public service.
+
+## Manual local development
 
 1. Install Java 21, Maven, Node.js and Docker Desktop.
 2. In the repository root run `docker compose up -d postgres` (PostgreSQL bound to localhost:5433).

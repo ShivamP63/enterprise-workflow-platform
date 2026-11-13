@@ -1,13 +1,36 @@
+# Local-only, unauthenticated portfolio demo. Do not expose its ports publicly.
 services:
   postgres:
     image: postgres:16-alpine
-    ports:
-      - "127.0.0.1:5433:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-workflow_local}
       POSTGRES_USER: ${POSTGRES_USER:-workflow_dev}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
     volumes:
       - workflow_pg_data:/var/lib/postgresql/data
+  api:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-workflow_local}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-workflow_dev}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+  frontend:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:5173:80"
 volumes:
   workflow_pg_data:
