@@ -226,12 +226,14 @@ resource "aws_instance" "host" {
 }
 
 resource "aws_iam_openid_connect_provider" "github" {
+  count = var.enable_github_oidc ? 1 : 0
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
 
 resource "aws_iam_role" "github_deploy" {
+  count = var.enable_github_oidc ? 1 : 0
   name = "portfolio-github-deploy"
 
   assume_role_policy = jsonencode({
@@ -239,7 +241,7 @@ resource "aws_iam_role" "github_deploy" {
     Statement = [{
       Effect = "Allow"
       Principal = {
-        Federated = aws_iam_openid_connect_provider.github.arn
+        Federated = aws_iam_openid_connect_provider.github[0].arn
       }
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
@@ -258,7 +260,8 @@ resource "aws_iam_role" "github_deploy" {
 }
 
 resource "aws_iam_role_policy" "github_deploy" {
-  role = aws_iam_role.github_deploy.id
+  count = var.enable_github_oidc ? 1 : 0
+  role = aws_iam_role.github_deploy[0].id
 
   policy = jsonencode({
     Version = "2012-10-17"
