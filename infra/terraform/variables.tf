@@ -20,11 +20,17 @@ variable "document_repository" {
 
 variable "instance_type" {
   type    = string
-  default = "t4g.medium"
+  default = "t4g.small"
 }
 
 variable "ssh_cidr" {
   type        = string
   description = "Optional temporary SSH CIDR. Leave empty when using SSM only."
   default     = ""
+}
+
+variable "enable_github_oidc" {
+  type        = bool
+  description = "Enable GitHub Actions OIDC resources. AWS Free Plan may deny this until the account is upgraded."
+  default     = false
 }
