@@ -2,7 +2,7 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y ca-certificates curl docker.io docker-compose-plugin unzip
+apt-get install -y ca-certificates curl docker.io docker-compose-v2 unzip
 systemctl enable --now docker
 usermod -aG docker ubuntu
 
