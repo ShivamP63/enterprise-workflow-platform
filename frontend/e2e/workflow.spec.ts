@@ -12,13 +12,13 @@ test('project and task persist from the browser through PostgreSQL', async ({ pa
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill('test-password-123');
   await page.getByRole('button', { name: 'Create account' }).click();
-  await expect(page.getByRole('heading', { name: 'Projects and tasks' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Your delivery overview' })).toBeVisible();
 
-  await page.getByLabel('New project name').fill(project);
+  await page.getByLabel('New project').fill(project);
   await page.getByRole('button', { name: 'Create project' }).click();
   await expect(page.getByRole('button', { name: new RegExp(project) })).toBeVisible();
 
-  await page.getByLabel('New task title').fill(task);
+  await page.getByLabel('Add a task').fill(task);
   await page.getByRole('button', { name: 'Add task' }).click();
   await expect(page.getByText(task, { exact: true })).toBeVisible();
 
