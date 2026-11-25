@@ -11,6 +11,8 @@ public class ProjectEntity {
     private UUID id;
     @Column(nullable=false, length=120)
     private String name;
+    @Column(name="owner_id")
+    private UUID ownerId;
     @Column(length=2000)
     private String description;
     @Enumerated(EnumType.STRING)
@@ -24,12 +26,14 @@ public class ProjectEntity {
     @PrePersist public void onCreate() { createdAt=Instant.now(); updatedAt=createdAt; }
     @PreUpdate public void onUpdate() { updatedAt=Instant.now(); }
     public UUID getId(){ return id; }
+    public UUID getOwnerId(){ return ownerId; }
     public String getName(){ return name; }
     public String getDescription(){ return description; }
     public ProjectStatus getStatus(){ return status; }
     public Instant getCreatedAt(){ return createdAt; }
     public Instant getUpdatedAt(){ return updatedAt; }
     public void setName(String value){ name=value; }
+    public void setOwnerId(UUID value){ ownerId=value; }
     public void setDescription(String value){ description=value; }
     public void setStatus(ProjectStatus value){ status=value; }
 }

@@ -61,19 +61,23 @@ jobs:
           python3 - <<'PY'
           import json
           from urllib.request import Request, urlopen
-          def call(method, path, payload=None):
+          def call(method, path, payload=None, token=None):
               data = None if payload is None else json.dumps(payload).encode()
-              request = Request('http://localhost:8080'+path, data=data, method=method,
-                                headers={'Content-Type': 'application/json'})
+              headers = {'Content-Type': 'application/json'}
+              if token:
+                  headers['Authorization'] = 'Bearer ' + token
+              request = Request('http://localhost:8080'+path, data=data, method=method, headers=headers)
               with urlopen(request, timeout=15) as response:
                   return json.load(response)
-          project = call('POST', '/api/projects', {'name': 'CI Smoke'})
+          auth = call('POST', '/api/auth/register', {'name': 'CI Smoke User', 'email': 'ci-smoke@example.test', 'password': 'test-password-123'})
+          token = auth['token']
+          project = call('POST', '/api/projects', {'name': 'CI Smoke'}, token)
           assert project['id']
-          task = call('POST', f"/api/projects/{project['id']}/tasks", {'title': 'Verify database'})
+          task = call('POST', f"/api/projects/{project['id']}/tasks", {'title': 'Verify database'}, token)
           assert task['status'] == 'TODO'
-          updated = call('PATCH', f"/api/tasks/{task['id']}", {'status': 'DONE'})
+          updated = call('PATCH', f"/api/tasks/{task['id']}", {'status': 'DONE'}, token)
           assert updated['status'] == 'DONE'
-          listed = call('GET', f"/api/projects/{project['id']}/tasks")
+          listed = call('GET', f"/api/projects/{project['id']}/tasks", token=token)
           assert listed[0]['status'] == 'DONE'
           print('PostgreSQL CRUD smoke passed')
           PY

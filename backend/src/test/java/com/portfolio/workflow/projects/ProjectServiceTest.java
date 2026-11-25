@@ -12,7 +12,7 @@ class ProjectServiceTest {
         ProjectRepository repo=mock(ProjectRepository.class);
         UUID id=UUID.randomUUID();
         when(repo.findById(id)).thenReturn(Optional.empty());
-        ResponseStatusException ex=assertThrows(ResponseStatusException.class,()->new ProjectService(repo).get(id));
+        ResponseStatusException ex=assertThrows(ResponseStatusException.class,()->new ProjectService(repo, mock(com.portfolio.workflow.members.ProjectMemberRepository.class)).find(id));
         assertEquals(404,ex.getStatusCode().value()); 
     }
 }
