@@ -198,7 +198,7 @@ export default function App() {
   async function changeStatus(taskId: string, status: TaskStatus) {
     try {
       await api<Task>(`/api/tasks/${taskId}`, { method: "PATCH", body: JSON.stringify({ status }) });
-      setMessage("Task status saved");
+      setMessage("Task saved");
       await loadTasks(selected);
     } catch (error) { setMessage(String(error)); }
   }
