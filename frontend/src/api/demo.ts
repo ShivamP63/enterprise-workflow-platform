@@ -1,20 +1,19 @@
 /**
- * Public portfolio preview only: browser-local sample data. Never sent to an API.
+ * Optional local preview mode. Data is kept in the browser and never sent to an API.
  * The real Spring Boot/PostgreSQL backend is exercised in separate GitHub Actions CI.
  */
 export const isHostedDemo =
-  import.meta.env.VITE_DEMO_MODE === 'true' ||
-  (typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app'));
+  import.meta.env.VITE_DEMO_MODE === 'true';
 
 type Project = { id: string; name: string; description: string | null; status: 'ACTIVE' | 'ARCHIVED' };
 type Task = { id: string; projectId: string; title: string; details: string | null; status: 'TODO' | 'IN_PROGRESS' | 'DONE'; priority: 'LOW' | 'MEDIUM' | 'HIGH' };
 type State = { projects: Project[]; tasks: Task[] };
-const key = 'portfolio-workflow-demo-v1';
+const key = 'workflow-demo-v1';
 const initial: State = {
-  projects: [{ id: 'example-project', name: 'Website launch (sample)', description: 'Example data for the public demo', status: 'ACTIVE' }],
+  projects: [{ id: 'example-project', name: 'Website launch', description: 'Example workspace data', status: 'ACTIVE' }],
   tasks: [
-    { id: 'example-task-1', projectId: 'example-project', title: 'Review requirements (sample)', details: null, status: 'DONE', priority: 'MEDIUM' },
-    { id: 'example-task-2', projectId: 'example-project', title: 'Prepare launch checklist (sample)', details: null, status: 'IN_PROGRESS', priority: 'HIGH' },
+    { id: 'example-task-1', projectId: 'example-project', title: 'Review requirements', details: null, status: 'DONE', priority: 'MEDIUM' },
+    { id: 'example-task-2', projectId: 'example-project', title: 'Prepare launch checklist', details: null, status: 'IN_PROGRESS', priority: 'HIGH' },
   ],
 };
 function read(): State {

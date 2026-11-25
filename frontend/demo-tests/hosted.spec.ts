@@ -7,7 +7,7 @@ test('hosted workflow preview is interactive, persistent, and never contacts an 
   const project = 'Hosted example ' + suffix;
   const task = 'Sample task ' + suffix;
   await page.goto('/');
-  await expect(page.getByText(/Interactive browser-only demo/)).toBeVisible();
+  await expect(page.getByText(/Local preview data/)).toBeVisible();
   await page.getByLabel('New project name').fill(project);
   await page.getByRole('button', { name: 'Create project' }).click();
   await expect(page.getByRole('button', { name: new RegExp(project) })).toBeVisible();
