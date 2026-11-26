@@ -31,22 +31,22 @@ jobs:
       - name: Inspect EC2 and SSM deployment targets
         run: |
           echo "Running EC2 instances:"
-          aws ec2 describe-instances \\
-            --filters Name=instance-state-name,Values=running \\
-            --query 'Reservations[].Instances[].{Id:InstanceId,Name:Tags[?Key==`Name`].Value|[0],PrivateIp:PrivateIpAddress}' \\
+          aws ec2 describe-instances \
+            --filters Name=instance-state-name,Values=running \
+            --query 'Reservations[].Instances[].{Id:InstanceId,Name:Tags[?Key==`Name`].Value|[0],PrivateIp:PrivateIpAddress}' \
             --output table
           echo "SSM-managed instances:"
-          aws ssm describe-instance-information \\
-            --query 'InstanceInformationList[].{Id:InstanceId,Ping:PingStatus,Platform:PlatformName}' \\
+          aws ssm describe-instance-information \
+            --query 'InstanceInformationList[].{Id:InstanceId,Ping:PingStatus,Platform:PlatformName}' \
             --output table
       - name: Restart backend through SSM
         run: |
-          TARGET_COUNT=$(aws ssm send-command \\
-            --targets Key=tag:Name,Values=portfolio-shared-host \\
-            --document-name AWS-RunShellScript \\
-            --parameters commands="[/opt/portfolio/deploy.sh workflow ${{ github.sha }}]" \\
-            --comment "Deploy workflow API ${{ github.sha }}" \\
-            --query 'Command.TargetCount' \\
+          TARGET_COUNT=$(aws ssm send-command \
+            --targets Key=tag:Name,Values=portfolio-shared-host \
+            --document-name AWS-RunShellScript \
+            --parameters commands="[/opt/portfolio/deploy.sh workflow ${{ github.sha }}]" \
+            --comment "Deploy workflow API ${{ github.sha }}" \
+            --query 'Command.TargetCount' \
             --output text)
           echo "SSM target count: ${TARGET_COUNT}"
           if [ "${TARGET_COUNT}" = "0" ] || [ "${TARGET_COUNT}" = "None" ]; then
