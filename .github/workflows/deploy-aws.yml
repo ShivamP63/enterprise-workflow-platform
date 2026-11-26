@@ -28,10 +28,28 @@ jobs:
           context: ./backend
           push: true
           tags: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/portfolio/workflow-api:${{ github.sha }}
+      - name: Inspect EC2 and SSM deployment targets
+        run: |
+          echo "Running EC2 instances:"
+          aws ec2 describe-instances \\
+            --filters Name=instance-state-name,Values=running \\
+            --query 'Reservations[].Instances[].{Id:InstanceId,Name:Tags[?Key==`Name`].Value|[0],PrivateIp:PrivateIpAddress}' \\
+            --output table
+          echo "SSM-managed instances:"
+          aws ssm describe-instance-information \\
+            --query 'InstanceInformationList[].{Id:InstanceId,Ping:PingStatus,Platform:PlatformName}' \\
+            --output table
       - name: Restart backend through SSM
         run: |
-          aws ssm send-command \
-            --targets Key=tag:Name,Values=portfolio-shared-host \
-            --document-name AWS-RunShellScript \
-            --parameters commands="[/opt/portfolio/deploy.sh workflow ${{ github.sha }}]" \
-            --comment "Deploy workflow API ${{ github.sha }}"
+          TARGET_COUNT=$(aws ssm send-command \\
+            --targets Key=tag:Name,Values=portfolio-shared-host \\
+            --document-name AWS-RunShellScript \\
+            --parameters commands="[/opt/portfolio/deploy.sh workflow ${{ github.sha }}]" \\
+            --comment "Deploy workflow API ${{ github.sha }}" \\
+            --query 'Command.TargetCount' \\
+            --output text)
+          echo "SSM target count: ${TARGET_COUNT}"
+          if [ "${TARGET_COUNT}" = "0" ] || [ "${TARGET_COUNT}" = "None" ]; then
+            echo "No SSM-managed EC2 instance has the Name tag portfolio-shared-host. Deployment was not delivered."
+            exit 1
+          fi
