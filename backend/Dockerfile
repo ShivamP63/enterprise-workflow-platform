@@ -7,7 +7,7 @@ RUN mvn --batch-mode --no-transfer-progress -DskipTests package
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-RUN if ! id -u appuser >/dev/null 2>&1; then useradd --system --uid 10001 appuser; fi
+RUN id -u appuser >/dev/null 2>&1 || useradd --system appuser
 COPY --from=build /build/target/*.jar /app/app.jar
 USER appuser
 EXPOSE 8080
