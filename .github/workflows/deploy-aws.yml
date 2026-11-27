@@ -36,7 +36,7 @@ jobs:
         run: |
           DEPLOY_SCRIPT_B64=$(base64 -w0 deploy/deploy.sh)
           COMMANDS=$(jq -nc --arg script "$DEPLOY_SCRIPT_B64" --arg tag "${{ github.sha }}" \
-            '[ ("echo " + $script + " | base64 -d > /opt/portfolio/deploy.sh"), "chmod +x /opt/portfolio/deploy.sh", ("AWS_REGION=us-east-2 AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }} /opt/portfolio/deploy.sh " + $tag) ]')
+            '{commands:[ ("echo " + $script + " | base64 -d > /opt/portfolio/deploy.sh"), "chmod +x /opt/portfolio/deploy.sh", ("AWS_REGION=us-east-2 AWS_ACCOUNT_ID=${{ env.AWS_ACCOUNT_ID }} /opt/portfolio/deploy.sh " + $tag) ]}')
           INSTANCE_ID=i-0bb547fb4c245ab0c
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
