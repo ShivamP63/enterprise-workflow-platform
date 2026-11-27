@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { API_BASE_URL, clearAuthToken, getAuthToken, saveAuthToken } from "./api/client";
-import { demoRequest, isHostedDemo } from "./api/demo";
 
 type ProjectStatus = "ACTIVE" | "ARCHIVED";
 type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
@@ -13,7 +12,6 @@ const statusLabels: Record<TaskStatus, string> = { TODO: "To do", IN_PROGRESS: "
 const priorityLabels: Record<TaskPriority, string> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High" };
 
 async function api<T>(path: string, options?: RequestInit): Promise<T> {
-  if (isHostedDemo) return demoRequest<T>(path, options);
   const token = getAuthToken();
   const headers = new Headers(options?.headers);
   headers.set("Content-Type", "application/json");
@@ -93,7 +91,7 @@ function initials(name: string) {
 }
 
 export default function App() {
-  const [authenticated, setAuthenticated] = useState(isHostedDemo || Boolean(getAuthToken()));
+  const [authenticated, setAuthenticated] = useState(Boolean(getAuthToken()));
   const [userName, setUserName] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [selected, setSelected] = useState<string>(() => {
@@ -208,7 +206,7 @@ export default function App() {
   return <main className="app-shell">
     <header className="topbar">
       <div className="topbar-brand"><span className="brand-mark">EW</span><span>Workstream</span></div>
-      <div className="topbar-actions"><span className="connection-status"><i /> {isHostedDemo ? "Preview mode" : "Connected"}</span><span className="avatar">{initials(userName)}</span>{!isHostedDemo && <button className="ghost-button" onClick={logout}>Sign out</button>}</div>
+      <div className="topbar-actions"><span className="connection-status"><i /> Secure connection</span><span className="avatar">{initials(userName)}</span><button className="ghost-button" onClick={logout}>Sign out</button></div>
     </header>
     <div className="workspace-layout">
       <aside className="sidebar">
@@ -236,6 +234,6 @@ export default function App() {
         </>}
       </section>
     </div>
-    <footer className="app-footer">{isHostedDemo ? "Local preview data is stored in this browser." : "Secure workspace · Changes are saved to the connected service."}</footer>
+    <footer className="app-footer">Secure workspace · Changes are saved to your account.</footer>
   </main>;
 }
