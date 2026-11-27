@@ -1,50 +1,57 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 IMAGE_TAG="${1:?image tag is required}"
 AWS_REGION="${AWS_REGION:-us-east-2}"
 AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-276663279892}"
-IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/portfolio/workflow-api:${IMAGE_TAG}"
-APP_DIR=/opt/portfolio
-ENV_FILE="${APP_DIR}/workflow.env"
-NETWORK=portfolio-network
+REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+IMAGE="${REGISTRY}/portfolio/workflow-api:${IMAGE_TAG}"
+ENV_FILE="/opt/workflow/workflow.env"
+NETWORK="docai_default"
 
-mkdir -p "${APP_DIR}"
 if [ ! -f "${ENV_FILE}" ]; then
-  cat > "${ENV_FILE}" <<'ENV'
-POSTGRES_DB=workflow
-POSTGRES_USER=workflow
-POSTGRES_PASSWORD=change-this-local-password
-APP_JWT_SECRET=change-this-jwt-secret-before-production
-APP_JWT_EXPIRATION=PT2H
-APP_CORS_ALLOWED_ORIGINS=*
-ENV
-  chmod 600 "${ENV_FILE}"
+  echo "Missing ${ENV_FILE}. Run the workflow database setup before deploying." >&2
+  exit 1
 fi
-set -a
-. "${ENV_FILE}"
-set +a
 
-docker network inspect "${NETWORK}" >/dev/null 2>&1 || docker network create "${NETWORK}"
+if ! command -v aws >/dev/null 2>&1; then
+  if ! command -v unzip >/dev/null 2>&1; then
+    apt-get update -y
+    apt-get install -y unzip
+  fi
+
+  TMP_DIR="$(mktemp -d)"
+  case "$(uname -m)" in
+    aarch64|arm64) AWSCLI_ARCH="aarch64" ;;
+    x86_64|amd64) AWSCLI_ARCH="x86_64" ;;
+    *) echo "Unsupported host architecture: $(uname -m)" >&2; exit 1 ;;
+  esac
+
+  curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWSCLI_ARCH}.zip" -o "${TMP_DIR}/awscliv2.zip"
+  unzip -q "${TMP_DIR}/awscliv2.zip" -d "${TMP_DIR}"
+  "${TMP_DIR}/aws/install" --update
+  rm -rf "${TMP_DIR}"
+fi
+
+aws ecr get-login-password --region "${AWS_REGION}" |   docker login --username AWS --password-stdin "${REGISTRY}"
+
 docker pull "${IMAGE}"
-
 docker rm -f workflow-api >/dev/null 2>&1 || true
-docker rm -f workflow-postgres >/dev/null 2>&1 || true
 
-docker run -d --name workflow-postgres --restart unless-stopped --network "${NETWORK}" \
-  -e POSTGRES_DB="${POSTGRES_DB}" -e POSTGRES_USER="${POSTGRES_USER}" -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
-  -v workflow_pg_data:/var/lib/postgresql/data postgres:16-alpine
+docker run -d   --name workflow-api   --restart unless-stopped   --network "${NETWORK}"   -p 8080:8080   --env-file "${ENV_FILE}"   "${IMAGE}"
 
-for i in {1..30}; do
-  if docker exec workflow-postgres pg_isready -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" >/dev/null 2>&1; then break; fi
+i=0
+while ! curl -fsS http://127.0.0.1:8080/api/health >/tmp/workflow-health.out 2>/tmp/workflow-health.err; do
+  i=$((i + 1))
+  if [ "${i}" -ge 60 ]; then
+    cat /tmp/workflow-health.err >&2 || true
+    docker logs --tail 100 workflow-api >&2 || true
+    exit 1
+  fi
   sleep 2
 done
 
-docker run -d --name workflow-api --restart unless-stopped --network "${NETWORK}" -p 8080:8080 \
-  --env-file "${ENV_FILE}" \
-  -e SPRING_DATASOURCE_URL="jdbc:postgresql://workflow-postgres:5432/${POSTGRES_DB}" \
-  -e SPRING_DATASOURCE_USERNAME="${POSTGRES_USER}" \
-  -e SPRING_DATASOURCE_PASSWORD="${POSTGRES_PASSWORD}" \
-  "${IMAGE}"
-
-docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'
+cat /tmp/workflow-health.out
+curl -fsS http://127.0.0.1/api/health >/dev/null
+echo
+echo "Python and Java services are healthy"
