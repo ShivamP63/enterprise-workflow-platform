@@ -1,33 +1,42 @@
 # Enterprise Workflow Management Platform
 
-## Live browser-only preview
+## Live authenticated demo
 
-**[Enterprise Workflow public demo](https://enterprise-workflow-demo.vercel.app)** — hosted on Vercel (deployed 2026-11-13).
+**[Enterprise Workflow public demo](https://enterprise-workflow-demo.vercel.app)** — hosted on Vercel.
 
-The public demo saves project/task changes in each visitor's own browser using localStorage; it does not call the Java API or PostgreSQL. The full-stack Docker Compose application is separately tested through GitHub Actions.
+The public frontend now uses the authenticated Spring Boot API through the same-origin `/api` path. Vercel rewrites API requests to the HTTPS backend, so browser requests remain same-origin and avoid direct browser-to-EC2 CORS issues. Users can register, sign in, create projects, add tasks, update task status, and persist changes in PostgreSQL through the API.
 
-**Important:** GitHub is the source of truth, but this Vercel project was deployed from the checked-in frontend source directly because the Vercel team's GitHub Login Connection has not been enabled. New GitHub commits do **not** automatically update the live Vercel site until that connection is configured or another explicit deployment is made.
+**Production verification:** `/api/health` returns the workflow service health response, and the deployed login flow reaches the backend. The current production deployment is READY from commit `75c232b`.
 
-**v0.1.0 local-first milestone verified in CI — automated browser-to-PostgreSQL test passed on 2026-11-13.**
+A full-stack business workflow application for managing team projects and tasks. Built to explore practical backend architecture, relational data modeling, React user interfaces, authentication, and reliable API-driven workflows.
 
-A full-stack business workflow application for managing team projects and tasks. Built to explore practical backend architecture, relational data modeling, React user interfaces, and reliable API-driven workflows.
-
-**Tech stack:** Java 21 · Spring Boot · REST APIs · PostgreSQL · Flyway · React · TypeScript · Docker Compose
+**Tech stack:** Java 21 · Spring Boot · REST APIs · PostgreSQL · Flyway · React · TypeScript · Docker Compose · GitHub Actions
 
 ## Project overview
 
-The first workflow is designed around creating a project, adding and updating tasks, and viewing persisted changes in a React application. The repository contains the Sprint 1 application foundation, and the browser-to-PostgreSQL flow has been verified by an automated Docker + Playwright test in GitHub Actions.
+The workflow supports creating projects, adding and updating tasks, and viewing persisted changes in a React application. The repository contains the Spring Boot API, PostgreSQL schema and migrations, authenticated React UI, Docker Compose setup, and CI checks.
+
+### Implemented capabilities
+
+- User registration and JWT sign-in
+- Authenticated project and task APIs
+- PostgreSQL persistence with Flyway migrations
+- React and TypeScript workspace UI
+- Task status and priority management
+- Docker Compose local environment
+- GitHub Actions backend and frontend checks
+- Browser-to-database verification through the Dockerized stack
 
 ### Planned development milestones
 
-1. **Sprint 1 — Foundation:** Project/task APIs, PostgreSQL schema and migrations, React UI, initial tests; **implemented and verified by automated browser test in CI**.
-2. **Authentication & authorization:** User login, project membership, role-based access, authorization tests.
+1. **Foundation:** Project/task APIs, PostgreSQL schema and migrations, React UI, authentication, and initial tests; **implemented and verified in CI**.
+2. **Authorization depth:** Project membership, role-based access, and authorization tests.
 3. **Collaboration:** Task assignments, comments, filters, and activity history.
-4. **Quality & deployment:** More integration tests, CI, containerization, observability, and a controlled cloud release.
+4. **Quality and operations:** More integration tests, observability, and controlled cloud hardening.
 
-The roadmap describes **planned features**, not released functionality. See [roadmap](docs/roadmap.md), [architecture](docs/architecture.md), and [API design](docs/api-design.md).
+See [roadmap](docs/roadmap.md), [architecture](docs/architecture.md), and [API design](docs/api-design.md).
 
-## One-command Docker demo (local)
+## One-command Docker demo local
 
 With Docker Desktop running, execute this at the repository root:
 
@@ -35,23 +44,22 @@ With Docker Desktop running, execute this at the repository root:
 docker compose up -d --build
 ```
 
-Open **http://localhost:5173** (React UI) and **http://localhost:8080/api/health** (Spring Boot health endpoint). Create a project, add a task, update its status, and refresh to confirm PostgreSQL persistence. Stop the app using `docker compose down`; database data persists in a named Docker volume unless explicitly removed.
+Open **http://localhost:5173** (React UI) and **http://localhost:8080/api/health** (Spring Boot health endpoint). Register or sign in, create a project, add a task, update its status, and refresh to confirm PostgreSQL persistence. Stop the app using `docker compose down`; database data persists in a named Docker volume unless explicitly removed.
 
-GitHub Actions includes a Playwright browser test that exercises this exact workflow through the Dockerized UI, API, and PostgreSQL. The application remains **local-only** until user authentication and server-side authorization are implemented. Do not expose ports or publish this demo as a public service.
+GitHub Actions includes browser checks that exercise the Dockerized UI, API, and PostgreSQL workflow.
 
 ## Manual local development
 
 1. Install Java 21, Maven, Node.js and Docker Desktop.
-2. In the repository root run `docker compose up -d postgres` (PostgreSQL bound to localhost:5433).
-3. Run `cd backend && mvn test && mvn spring-boot:run`. Flyway creates tables on startup.
-4. Verify `http://localhost:8080/api/health`.
-5. In a second terminal run `cd frontend && npm install && npm run dev`. Open `http://localhost:5173`.
-6. Create a project, add a task, change its status, refresh the page, and confirm the records persist. **This exact workflow passed the automated browser test in CI; manual walkthrough is optional.**
+2. In the repository root run `docker compose up -d --build`.
+3. Verify `http://localhost:8080/api/health`.
+4. Open `http://localhost:5173`.
+5. Register or sign in, create a project, add a task, change its status, refresh the page, and confirm the records persist.
 
-**Local development only:** Docker Compose database credentials are development defaults. Do not expose the application publicly before authentication and per-project authorization are implemented.
+**Local development only:** Docker Compose database credentials are development defaults. Use strong secrets and restrict network access before deploying outside a controlled environment.
 
-## Hosted browser-only portfolio preview
+## Deployment notes
 
-The Vercel frontend is intentionally an isolated, interactive **browser-only demo**: it saves sample project/task data in browser localStorage and does not contact the Spring Boot API. This protects the unauthenticated backend from public access and makes the preview free of hosted database dependencies. It is **not** a demonstration of a deployed Java/PostgreSQL backend.
+The Vercel frontend uses the checked-in `frontend/vercel.json` rewrite for `/api/:path*`. The frontend does not call the backend IP directly from the browser. The Vercel project is connected to this repository, and production deployments are created from the repository's main branch.
 
-The full Java 21/Spring Boot, PostgreSQL, Flyway, React application runs through Docker Compose and has passed project/task browser-to-database persistence checks in GitHub Actions. The public demo uses `VITE_DEMO_MODE=true`; localhost continues to use the real API by default.
+The Docker Compose stack remains the reproducible local and CI validation environment. The hosted demo is a real authenticated API integration, not a localStorage-only mock.
