@@ -6,7 +6,7 @@
 
 The public frontend now uses the authenticated Spring Boot API through the same-origin `/api` path. Vercel rewrites API requests to the HTTPS backend, so browser requests remain same-origin and avoid direct browser-to-EC2 CORS issues. Users can register, sign in, create projects, add tasks, update task status, and persist changes in PostgreSQL through the API.
 
-**Production verification:** `/api/health` returns the workflow service health response, and the deployed login flow reaches the backend. The current production deployment is READY from commit `75c232b`.
+**Production verification:** `/api/health` returns the workflow service health response, and the deployed login flow reaches the backend. The current production deployment is READY from commit `9b19dd2`.
 
 A full-stack business workflow application for managing team projects and tasks. Built to explore practical backend architecture, relational data modeling, React user interfaces, authentication, and reliable API-driven workflows.
 
